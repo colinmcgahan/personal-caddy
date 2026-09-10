@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Round Detail · Colin's Caddy</title>
+<style>
+:root{--bg:#0b140f;--panel:#132018;--panel2:#1a2a20;--text:#f5f2e8;--muted:#b8c4b9;--accent:#d7f06a;--line:#2c4132}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#09110c,#101a13);color:var(--text)}
+.wrap{max-width:980px;margin:auto;padding:20px}
+a{color:var(--text);text-decoration:none}
+.card{background:rgba(20,32,25,.95);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:16px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.badge{background:var(--accent);color:#132016;padding:8px 12px;border-radius:999px;font-weight:800}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--panel2);border-radius:16px;padding:15px}
+.kpi strong{display:block;font-size:24px}
+.kpi span,.muted{color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}
+button{border:0;border-radius:12px;padding:11px 14px;background:#24392a;color:var(--text);font-weight:800;cursor:pointer}
+@media(max-width:700px){.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top" style="margin-bottom:14px">
+  <a href="index.html">← Back to rounds</a>
+  <span class="badge">Round Detail</span>
+</div>
+<div id="app"></div>
+</div>
+<script>
+const seedRounds = [{"date":"2026-09-08","course":"Amherst Golf Club","holes":9,"score":43,"par":35,"putts":18,"penalties":2,"fir":"57%","gir":"22%","tee":"White","diff":"13.8"},{"date":"2026-08-26","course":"The Ranch Golf Club","holes":18,"score":93,"par":72,"putts":38,"penalties":3.5,"fir":"50%","gir":"22%","tee":"Pine","diff":"16.2"},{"date":"2026-08-07","course":"Hooper Golf Club","holes":9,"score":44,"par":36,"putts":18,"penalties":1.5,"fir":"57%","gir":"11%","tee":"White/Blue","diff":"15.2"},{"date":"2026-07-25","course":"Orleans Country Club","holes":18,"score":81,"par":72,"putts":30,"penalties":1.5,"fir":"43%","gir":"28%","tee":"Blue","diff":"9.2"},{"date":"2026-07-19","course":"Fox Run Golf Club","holes":18,"score":82,"par":70,"putts":35,"penalties":2.5,"fir":"54%","gir":"39%","tee":"White","diff":"13.7"},{"date":"2026-06-29","course":"Wyckoff Park | Wyckoff Country Club","holes":9,"score":42,"par":34,"putts":17,"penalties":1,"fir":"33%","gir":"44%","tee":"Blue","diff":"15.2"},{"date":"2026-06-25","course":"Cold Spring Country Club","holes":18,"score":77,"par":71,"putts":30,"penalties":0,"fir":"58%","gir":"39%","tee":"Blue","diff":"6.5"},{"date":"2026-06-20","course":"Hooper Golf Club","holes":9,"score":41,"par":36,"putts":19,"penalties":1,"fir":"71%","gir":"56%","tee":"White/Blue","diff":"13.4"},{"date":"2026-06-19","course":"Shattuck Golf Club","holes":18,"score":104,"par":72,"putts":34,"penalties":3,"fir":"93%","gir":"0%","tee":"Blue","diff":"22.6"},{"date":"2026-06-07","course":"Connecticut National Golf Club","holes":18,"score":93,"par":71,"putts":38,"penalties":0,"fir":"85%","gir":"33%","tee":"Blue","diff":"19.8"},{"date":"2026-06-04","course":"Southampton Country Club","holes":9,"score":44,"par":36,"putts":18,"penalties":0,"fir":"57%","gir":"22%","tee":"White","diff":"16.4"},{"date":"2026-05-27","course":"Wyckoff Park | Wyckoff Country Club","holes":9,"score":41,"par":34,"putts":18,"penalties":0.5,"fir":"83%","gir":"33%","tee":"Blue","diff":"14.9"},{"date":"2026-05-26","course":"Ledges Golf Club","holes":18,"score":78,"par":72,"putts":30,"penalties":1,"fir":"79%","gir":"44%","tee":"Blue","diff":"7.3"},{"date":"2026-05-18","course":"The Ranch Golf Club","holes":18,"score":89,"par":72,"putts":36,"penalties":0.5,"fir":"93%","gir":"39%","tee":"Spruce","diff":"16.1"},{"date":"2026-05-07","course":"The Orchards Golf Club","holes":18,"score":94,"par":71,"putts":34,"penalties":0.5,"fir":"64%","gir":"17%","tee":"Black","diff":"14.7"},{"date":"2026-05-01","course":"Brattleboro Country Club","holes":18,"score":87,"par":71,"putts":33,"penalties":1,"fir":"93%","gir":"11%","tee":"White","diff":"15.9"},{"date":"2026-04-27","course":"The Ranch Golf Club","holes":18,"score":84,"par":72,"putts":35,"penalties":1.5,"fir":"71%","gir":"39%","tee":"Spruce","diff":"11.7"},{"date":"2026-04-23","course":"Wyckoff Park | Wyckoff Country Club","holes":9,"score":41,"par":34,"putts":18,"penalties":0,"fir":"67%","gir":"33%","tee":"Blue","diff":"14.7"},{"date":"2026-04-21","course":"Southampton Country Club","holes":9,"score":43,"par":36,"putts":19,"penalties":0,"fir":"86%","gir":"33%","tee":"White","diff":"16.2"},{"date":"2026-04-20","course":"Ledges Golf Club","holes":18,"score":78,"par":72,"putts":27,"penalties":1.5,"fir":"64%","gir":"22%","tee":"White","diff":"10.1"}];
+function getRounds(){
+  const stored=JSON.parse(localStorage.getItem("caddyRounds")||"[]");
+  const deleted=new Set(JSON.parse(localStorage.getItem("deletedRounds")||"[]"));
+  const byKey=new Map();
+  [...seedRounds,...stored].forEach(r=>{
+    const key=(r.date||"")+"|"+(r.course||"")+"|"+(r.score||"");
+    if(!deleted.has(key)) byKey.set(key,r);
+  });
+  return Array.from(byKey.values()).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+}
+function pct(v){ if(v===null||v===undefined||v==="") return null; const n=parseFloat(String(v).replace("%","")); return isNaN(n)?null:n; }
+function per18(r,key){ const v=Number(r[key]); if(isNaN(v)) return null; return v*(18/(r.holes||18)); }
+function summary(r){
+  let parts=[];
+  if(pct(r.gir)!==null && pct(r.gir)<25) parts.push("Approach play was the main pressure point.");
+  if(pct(r.fir)!==null && pct(r.fir)>=70) parts.push("Tee accuracy was strong.");
+  if(per18(r,"putts")>35) parts.push("Putting added avoidable shots.");
+  if(per18(r,"penalties")>1.5) parts.push("Penalty avoidance needs attention.");
+  if(!parts.length) parts.push("Balanced round with no single obvious statistical blow-up.");
+  return parts.join(" ");
+}
+const i=Number(new URLSearchParams(location.search).get("i"));
+const r=getRounds()[i];
+if(!r){
+  app.innerHTML='<div class="card"><h2>Round not found</h2><p class="muted">It may have been deleted.</p></div>';
+} else {
+  const toPar = r.par!==undefined ? Number(r.score)-Number(r.par) : null;
+  app.innerHTML=`
+    <div class="card">
+      <div class="top"><div><h1 style="margin:0">${r.course}</h1><div class="muted">${r.date||""} · ${r.holes||18} holes · ${r.tee||""}</div></div></div>
+      <div class="kpis" style="margin-top:16px">
+        <div class="kpi"><strong>${r.score}</strong><span>Score ${toPar!==null?("("+(toPar>=0?"+":"")+toPar+")"):""}</span></div>
+        <div class="kpi"><strong>${r.fir||"—"}</strong><span>FIR</span></div>
+        <div class="kpi"><strong>${r.gir||"—"}</strong><span>GIR</span></div>
+        <div class="kpi"><strong>${r.putts||"—"}</strong><span>Putts</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Caddie summary</h2>
+      <p>${summary(r)}</p>
+    </div>
+    <div class="card">
+      <h2>Scorecard details</h2>
+      <table>
+        <tr><th>Par</th><td>${r.par??"—"}</td></tr>
+        <tr><th>Penalties</th><td>${r.penalties??"—"}</td></tr>
+        <tr><th>Differential</th><td>${r.diff??"—"}</td></tr>
+        <tr><th>WHOOP recovery</th><td>${r.recovery||"Not linked"}</td></tr>
+      </table>
+      <p class="muted" style="margin-top:14px">Hole-by-hole scoring will appear here once those values are imported from your GRINT screenshots.</p>
+    </div>`;
+}
+</script>
+</body>
+</html>
